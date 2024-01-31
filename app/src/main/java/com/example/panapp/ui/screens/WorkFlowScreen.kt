@@ -1,6 +1,7 @@
 package com.example.panapp.ui.screens
 
 import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
@@ -30,83 +31,105 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.panapp.model.Order
 import com.example.panapp.ui.viewmodels.OrderViewModel
+import java.time.LocalDate
 
 @Composable
 fun WorkFlow(context: Context, orderViewModel: OrderViewModel){
 
     val orders by orderViewModel.orders.observeAsState()
     var clientName by rememberSaveable { mutableStateOf("") }
+    val today = LocalDate.EPOCH.dayOfWeek.value
+    var pedidoActual = orderViewModel.getPedidoProximo(today)
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ){
 
         Column (
-            modifier = Modifier.padding(horizontal = 8.dp),
+            modifier = Modifier.padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             Alignment.CenterHorizontally
-        ){
+        ) {
             Text(
                 text = "FLUJO DE TRABAJO",
                 fontWeight = FontWeight.Bold,
                 fontSize = 28.sp
             )
+
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 userScrollEnabled = true,
                 modifier = Modifier
                     .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
-                    .height(if (orders?.isEmpty() == true) 0.dp else 300.dp)
-            ){
-                orders?.let { items(it.size){
-                    Row (
+                    .height(400.dp)
+            ) {
+
+                item{
+                    clientName = pedidoActual.customer
+                    Text(
+                        text = "Pedido actual: $clientName",
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                items(pedidoActual.list.size) {
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(30.dp)
                             .background(Color.LightGray),
-                            //.padding(horizontal = 8.dp),
+                        //.padding(horizontal = 8.dp),
                         horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        clientName = orders!![it].customer
-                        Text(
-                            text = "Pedido actual: $clientName",
-                            fontWeight = FontWeight.Bold
-                        )
+                    ) {
 
-                        orders!![it].list.forEach { recipe -> 
+
+                        pedidoActual.list.forEach { recipe ->
                             Text(
                                 text = "${recipe.name}",
                                 fontWeight = FontWeight.Bold
                             )
+                            recipe.ingredients.forEach {
+                                it.toString()
+                            }
                         }
                     }
-                } }
+                }
             }
 
-            Row (
+
+            Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                //orders.f  SACAR FECHA
+
                 Text(
-                    text = "Fecha: ${orders?.get(0)?.date} - Tiempo Estimado: ${(30..180).random()} min"
+                    text = "Fecha: ${pedidoActual.date} - Tiempo Estimado: " +
+                            "${(pedidoActual.list.size..(pedidoActual.list.size * 15)).random()} min"
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row (
-
-            ){
-                Button(onClick = { /*TODO*/ }) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = {
+                    Toast.makeText(context, "Función en desarrollo...", Toast.LENGTH_SHORT).show()
+                }) {
                     Text(text = "Historial Pedidos")
                 }
 
-                Button(onClick = { /*TODO*/ }) {
+                Button(onClick = {
+                    pedidoActual = orderViewModel.getPedidoProximo(today + 1)
+                    Toast.makeText(context, "Función en desarrollo...", Toast.LENGTH_SHORT).show()
+                }) {
                     Text(text = "Siguiente Pedido")
                 }
             }
         }
     }
 }
+
+
