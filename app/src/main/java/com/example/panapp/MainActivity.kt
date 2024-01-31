@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
                                 NewRecipe(context, recipeViewModel)
                                 currentPage = "Newpage"
                             }
-                            composable("WorkFlow_Screen"){ WorkFlow(navController) }
+                            composable("WorkFlow_Screen"){ WorkFlow(context, orderViewModel) }
                             composable("Orders_Screen"){ NewOrder(context, recipeViewModel, orderViewModel) }
                         }
                     }
