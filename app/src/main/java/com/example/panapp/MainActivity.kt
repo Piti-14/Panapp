@@ -23,9 +23,14 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,10 +60,11 @@ class MainActivity : ComponentActivity() {
                 var snackBarState = remember { SnackbarHostState() }
                 var recipeViewModel = RecipeViewModel()
                 var orderViewModel = OrderViewModel()
+                var currentPage by rememberSaveable { mutableStateOf("") }
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackBarState) },
-                    bottomBar = { ToolBar(navController) },
+                    bottomBar = { ToolBar(navController, currentPage) },
                 ){
                     Column (
                         Modifier
@@ -67,8 +73,14 @@ class MainActivity : ComponentActivity() {
                                 bottom = it.calculateBottomPadding()
                             )){
                         NavHost(navController = navController, startDestination = "Login_Screen"){
-                            composable("Login_Screen"){ LoginScreen(loginData = LoginViewModel(), context, navController) }
-                            composable("NewRecipe_Screen"){ NewRecipe(context, recipeViewModel) }
+                            composable("Login_Screen"){
+                                LoginScreen(loginData = LoginViewModel(), context, navController)
+                                currentPage = "Login_Screen"
+                            }
+                            composable("NewRecipe_Screen"){
+                                NewRecipe(context, recipeViewModel)
+                                currentPage = "Newpage"
+                            }
                             composable("WorkFlow_Screen"){ WorkFlow(navController) }
                             composable("Orders_Screen"){ NewOrder(context, recipeViewModel, orderViewModel) }
                         }
@@ -80,60 +92,58 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ToolBar(navController: NavController){
+fun ToolBar(navController: NavController, currentPage: String) {
     BottomAppBar {
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 12.dp),
             Arrangement.SpaceBetween,
             Alignment.CenterVertically
-        ){
+        ) {
 
-            IconButton(
-                onClick = {
-                    navController.navigate("Orders_Screen")
-                },
-                modifier = Modifier.width(90.dp)
-            ){
-                Column (horizontalAlignment = Alignment.CenterHorizontally){
-                    Icon(imageVector = Icons.Default.Task, contentDescription = "Orders")
-                    Text(
-                        text = "PEDIDOS",
-                        fontWeight = FontWeight.Bold
-                    )
+            @Composable
+            fun IconButton(
+                icon: ImageVector,
+                text: String,
+                destination: String
+            ) {
+                IconButton(
+                    onClick = {
+                        if (currentPage != destination) {
+                            navController.navigate(destination)
+                        }
+                    },
+                    modifier = Modifier.width(90.dp),
+                    enabled = currentPage != "Login_Screen"
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(imageVector = icon, contentDescription = text)
+                        Text(
+                            text = text,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
 
             IconButton(
-                onClick = {
-                    navController.navigate("NewRecipe_Screen")
-                },
-                modifier = Modifier.width(90.dp)
-            ){
-                Column (horizontalAlignment = Alignment.CenterHorizontally){
-                    Icon(imageVector = Icons.Default.Fastfood, contentDescription = "Recipes")
-                    Text(
-                        text = "RECETAS",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+                Icons.Default.Task,
+                "PEDIDOS",
+                "Orders_Screen"
+            )
 
             IconButton(
-                onClick = {
-                    navController.navigate("WorkFlow_Screen")
-                },
-                modifier = Modifier.width(90.dp)
-            ){
-                Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(imageVector = Icons.Default.AirlineStops, contentDescription = "Tasks")
-                    Text(
-                        text = "TAREAS",
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
+                Icons.Default.Fastfood,
+                "RECETAS",
+                "NewRecipe_Screen"
+            )
+
+            IconButton(
+                Icons.Default.AirlineStops,
+                "TAREAS",
+                "WorkFlow_Screen"
+            )
         }
     }
 }
