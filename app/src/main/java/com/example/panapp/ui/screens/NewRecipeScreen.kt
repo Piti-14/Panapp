@@ -53,7 +53,7 @@ fun NewRecipe(context: Context, recipeViewModel: RecipeViewModel) {
     var products = recipeViewModel.products.observeAsState()
 
 
-    var recetas = rememberSaveable { mutableListOf<Recipe>() }
+    //var recetas = rememberSaveable { mutableListOf<Recipe>() }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -147,7 +147,7 @@ fun NewRecipe(context: Context, recipeViewModel: RecipeViewModel) {
                     onClick = {
                         if (precio.isNotBlank() && nombreReceta.isNotBlank()) {
                             val nuevaReceta = Recipe(listOfIngredients, precio.toDouble(), nombreReceta)
-                            recetas.add(nuevaReceta)
+                            recipeViewModel.addRecipe(nuevaReceta)
                             precio = ""
                             Toast.makeText(context, "Receta de producto $nombreReceta creada", Toast.LENGTH_SHORT).show()
                         } else {

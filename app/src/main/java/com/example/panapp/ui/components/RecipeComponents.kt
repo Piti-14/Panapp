@@ -74,7 +74,7 @@ fun getMeasures(): List<String> {
 }
 
 @Composable
-fun Measures(modifier: Modifier): String{
+fun Measures(modifier: Modifier): String {
     val measures = getMeasures()
     var expanded by rememberSaveable { mutableStateOf(false) }
     var unidad by rememberSaveable { mutableStateOf("Medida") }

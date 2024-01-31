@@ -29,10 +29,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.panapp.model.Ingredient
 import com.example.panapp.model.Recipe
+import com.example.panapp.ui.viewmodels.RecipeViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +66,7 @@ fun Unidades(modifier: Modifier): Int{
 }
 
 @Composable
-fun Products(modifier: Modifier, productList: List<Recipe>): String {
+fun Products(modifier: Modifier, recipeViewModel: RecipeViewModel): String {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var productos by rememberSaveable { mutableStateOf("Productos") }
@@ -81,7 +83,7 @@ fun Products(modifier: Modifier, productList: List<Recipe>): String {
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ){
-            productList.forEach { product ->
+            recipeViewModel.products.value?.forEach { product ->
                 DropdownMenuItem(
                     text = { Text(product.name) },
                     onClick = {

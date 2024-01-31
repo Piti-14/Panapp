@@ -94,7 +94,7 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
                                      modifier = Modifier
                                          .width(120.dp)
                                          .clip(RectangleShape),
-                                     listOfProducts
+                                     recipeViewModel
                                  )
 
                 cantidad = Unidades(modifier = Modifier.width(120.dp))

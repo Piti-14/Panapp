@@ -7,14 +7,16 @@ import com.example.panapp.model.Recipe
 
 class RecipeViewModel: ViewModel() {
 
-    private var _products = MutableLiveData<MutableList<Recipe>>()
-    val products: LiveData<MutableList<Recipe>> = _products
+    private var _products = MutableLiveData<List<Recipe>>()
+    val products: LiveData<List<Recipe>> = _products
 
     fun addRecipe(recipe: Recipe) {
-        _products!!.value?.add(recipe)
+        val currentList = _products.value.orEmpty().toMutableList()
+        currentList.add(recipe)
+        _products.value = currentList
     }
 
     fun getList(): List<Recipe> {
-        return _products.value as List<Recipe>
+        return _products.value.orEmpty()
     }
 }
