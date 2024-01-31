@@ -26,12 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
 import com.example.panapp.model.Ingredient
 import com.example.panapp.model.Recipe
 import com.example.panapp.ui.components.Measures
@@ -40,14 +38,17 @@ import com.example.panapp.ui.components.RecipePreview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewRecipe(navController: NavHostController, context: Context) {
-
-    val listOfIngredients = rememberSaveable { mutableListOf<Ingredient>() }
-    var totalRecipeCost by rememberSaveable { mutableStateOf(0) }
-    var precio by rememberSaveable { mutableStateOf("") }
+fun NewRecipe(context: Context) {
     var ingrediente by rememberSaveable { mutableStateOf("") }
     var cantidad by rememberSaveable { mutableDoubleStateOf(0.0) }
     var medida by rememberSaveable { mutableStateOf("") }
+
+    //For creating a new Recipe
+    val listOfIngredients = rememberSaveable { mutableListOf<Ingredient>() }
+    var precio by rememberSaveable { mutableStateOf("") }
+    var nombreReceta by rememberSaveable { mutableStateOf("") }
+
+
     var recetas = rememberSaveable { mutableListOf<Recipe>() }
 
     Box(
@@ -118,6 +119,14 @@ fun NewRecipe(navController: NavHostController, context: Context) {
                     .padding(horizontal = 16.dp)
             ){
                 TextField(
+                    value = nombreReceta,
+                    onValueChange = { nombreReceta = it },
+                    label = { Text(text = "Nombre")},
+                    singleLine = true,
+                    modifier = Modifier.width(100.dp).height(50.dp)
+                )
+
+                TextField(
                     value = precio,
                     onValueChange = { precio = it },
                     label = { Text(text = "Precio")},
@@ -128,20 +137,19 @@ fun NewRecipe(navController: NavHostController, context: Context) {
                 Button(
                     modifier = Modifier.clip(RectangleShape),
                     onClick = {
-                        if (precio.isNotBlank()) {
-                            val nuevaReceta = Recipe(listOfIngredients, precio.toDouble())
+                        if (precio.isNotBlank() && nombreReceta.isNotBlank()) {
+                            val nuevaReceta = Recipe(listOfIngredients, precio.toDouble(), nombreReceta)
                             recetas.add(nuevaReceta)
                             precio = ""
-                            Toast.makeText(context, "Receta de producto creada", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Receta de producto $nombreReceta creada", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Ingrese un precio válido", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Ingrese un precio y/o nombre válidos", Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {
                     Text(text = "GUARDAR")
                 }
             }
-
         }
     }
 }
