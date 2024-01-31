@@ -111,16 +111,22 @@ fun NewRecipe(navController: NavHostController, context: Context) {
             RecipePreview(listOfIngredients)
 
             Row (
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
             ){
                 TextField(
                     value = precio,
                     onValueChange = { precio = it },
-                    singleLine = true
+                    label = { Text(text = "Precio")},
+                    singleLine = true,
+                    modifier = Modifier.width(100.dp).height(50.dp)
                 )
 
                 Button(
+                    modifier = Modifier.clip(RectangleShape),
                     onClick = {
                         if (precio.isNotBlank()) {
                             val nuevaReceta = Recipe(listOfIngredients, precio.toDouble())

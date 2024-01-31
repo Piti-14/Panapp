@@ -3,13 +3,17 @@ package com.example.panapp.ui.components
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -30,9 +34,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.panapp.model.Ingredient
 import com.example.panapp.model.Recipe
 
@@ -126,7 +132,10 @@ fun RecipePreview(ingredients: List<Ingredient>){
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        userScrollEnabled = true
+        userScrollEnabled = true,
+        modifier = Modifier
+            .scrollable(rememberScrollState(), orientation = Orientation.Vertical)
+            .height(if (ingredients.isEmpty()) 0.dp else 300.dp)
     ){
         items(ingredients.size){
             Box (
@@ -137,12 +146,18 @@ fun RecipePreview(ingredients: List<Ingredient>){
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.LightGray),
+                        .background(Color.LightGray)
+                        .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
-                    Text(text = ingredients[it].name)
-                    Text(text = ingredients[it].qty.toString())
-                    Text(text = ingredients[it].measure)
+                    Text(
+                        text = "Ingrediente nº ${it + 1}: ${ingredients[it].name}",
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = ingredients[it].qty.toString() + " " + ingredients[it].measure,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
