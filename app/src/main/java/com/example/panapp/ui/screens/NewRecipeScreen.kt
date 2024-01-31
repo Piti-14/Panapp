@@ -149,6 +149,8 @@ fun NewRecipe(context: Context, recipeViewModel: RecipeViewModel) {
                             val nuevaReceta = Recipe(listOfIngredients, precio.toDouble(), nombreReceta)
                             recipeViewModel.addRecipe(nuevaReceta)
                             precio = ""
+                            nombreReceta = ""
+                            listOfIngredients.clear()
                             Toast.makeText(context, "Receta de producto $nombreReceta creada", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "Ingrese un precio y/o nombre válidos", Toast.LENGTH_SHORT).show()

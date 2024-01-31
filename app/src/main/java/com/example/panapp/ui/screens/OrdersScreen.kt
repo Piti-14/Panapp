@@ -49,10 +49,10 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
     var cantidad by rememberSaveable { mutableStateOf(0) }
     var fecha by rememberSaveable { mutableStateOf("") }
     var recetas = rememberSaveable { mutableListOf<Recipe>() }
-    var productoActual by rememberSaveable { mutableStateOf("") }
+    //var productoActual by rememberSaveable { mutableStateOf<Recipe>() }
 
     var products = recipeViewModel.products.observeAsState() //Productos que vendo
-    var orders = orderViewModel.oders.observeAsState() //Pedidos pendientes
+    var orders = orderViewModel.orders.observeAsState() //Pedidos pendientes
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -90,7 +90,7 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
                 verticalAlignment = Alignment.CenterVertically
             ){
 
-                productoActual = Products(
+               val productoActual = Products(
                                      modifier = Modifier
                                          .width(120.dp)
                                          .clip(RectangleShape),
@@ -101,12 +101,13 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
 
                 Button(
                     onClick = {
-                        listOfProducts.add(Recipe())
-                        cliente = ""
-                        cantidad = 0
-                        Toast.makeText(context, "Ingrediente añadido a la receta", Toast.LENGTH_SHORT).show()
+                        if (productoActual != null){
+                            listOfProducts.add(productoActual)
+                            cantidad = 0
+                            Toast.makeText(context, "Ingrediente añadido a la receta", Toast.LENGTH_SHORT).show()
+                        }
                     },
-                    enabled = (((cantidad != 0) && ( productoActual != "") && cliente != "Nombre cliente")),
+                    enabled = (((cantidad != 0) && ( productoActual?.name != "Producto") && cliente != "")),
                 ) {
                     Text(text = "Añadir")
                 }
@@ -114,7 +115,7 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
 
             Spacer(modifier = Modifier.height(40.dp))
 
-            OrderPreview(listOfProducts)
+            totalOrderCost = OrderPreview(listOfProducts, cantidad)
 
             Row (
                 horizontalArrangement = Arrangement.SpaceAround,
@@ -123,13 +124,6 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ){
-                /*TextField(
-                    value = nombreReceta,
-                    onValueChange = { nombreReceta = it },
-                    label = { Text(text = "Nombre")},
-                    singleLine = true,
-                    modifier = Modifier.width(100.dp).height(50.dp)
-                )*/
 
                 TextField(
                     value = fecha,
@@ -144,13 +138,16 @@ fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel:
                 Button(
                     modifier = Modifier.clip(RectangleShape),
                     onClick = {
-                        if (fecha != "" && cliente != "" && totalOrderCost != 0.0) {
+                        if (fecha != "" && cliente != "") {
                             val nuevoPedido = Order(listOfProducts, fecha, cliente, totalOrderCost)
                             orderViewModel.addOrder(nuevoPedido)
                             precio = ""
+                            fecha = ""
+                            cliente = ""
+                            listOfProducts.clear()
                             Toast.makeText(context, "Nuevo pedido generado", Toast.LENGTH_SHORT).show()
                         } else {
-                            Toast.makeText(context, "Ingrese un precio válido", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Ingrese precio y/o fecha válidos", Toast.LENGTH_SHORT).show()
                         }
                     }
                 ) {

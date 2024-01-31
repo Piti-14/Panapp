@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
@@ -18,9 +19,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -29,10 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.panapp.model.Ingredient
 import com.example.panapp.model.Recipe
 import com.example.panapp.ui.viewmodels.RecipeViewModel
 
@@ -66,7 +66,7 @@ fun Unidades(modifier: Modifier): Int{
 }
 
 @Composable
-fun Products(modifier: Modifier, recipeViewModel: RecipeViewModel): String {
+fun Products(modifier: Modifier, recipeViewModel: RecipeViewModel): Recipe? {
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var productos by rememberSaveable { mutableStateOf("Productos") }
@@ -95,11 +95,14 @@ fun Products(modifier: Modifier, recipeViewModel: RecipeViewModel): String {
         }
     }
 
-    return productos
+    return recipeViewModel.findRecipeByName(productos)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OrderPreview(products: List<Recipe>){
+fun OrderPreview(products: List<Recipe>, qty: Int): Double{
+    var totalLineaPedido = 0.0
+    var totalPedido by rememberSaveable { mutableStateOf(0.0) }
 
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -109,6 +112,7 @@ fun OrderPreview(products: List<Recipe>){
             .height(if (products.isEmpty()) 0.dp else 300.dp)
     ){
         items(products.size){
+            totalLineaPedido += (products[it].cost * qty)
             Box (
                 modifier = Modifier
                     .fillMaxSize()
@@ -122,15 +126,52 @@ fun OrderPreview(products: List<Recipe>){
                     horizontalArrangement = Arrangement.SpaceBetween
                 ){
                     Text(
-                        text = "Ingrediente nº ${it + 1}: ${products[it].name}",
+                        text = "Producto nº${it + 1}: ${products[it].name}",
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = products[it].cost.toString(),
+                        text = "$qty x ${products[it].cost}",
                         fontWeight = FontWeight.Bold
+                    )
+                }
+
+            }
+        }
+
+        item {
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.LightGray),
+                    horizontalArrangement = Arrangement.End
+                ){
+                    TextField(
+                        value = totalLineaPedido.toString(),
+                        onValueChange = { },
+                        label = {
+                            Text(
+                                text = "Precio Pedido",
+                                color = Color.Black
+                            )
+                        },
+                        singleLine = true,
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(50.dp),
+                        readOnly = true,
                     )
                 }
             }
         }
     }
+
+    DisposableEffect(Unit) {
+        totalPedido = totalLineaPedido
+        onDispose { }
+    }
+    return totalPedido
 }

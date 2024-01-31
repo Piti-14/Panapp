@@ -16,7 +16,15 @@ class RecipeViewModel: ViewModel() {
         _products.value = currentList
     }
 
-    fun getList(): List<Recipe> {
+    fun getRecipes(): List<Recipe> {
         return _products.value.orEmpty()
+    }
+
+    fun findRecipeByName(name: String): Recipe? {
+        val selected = _products.value.orEmpty().firstOrNull() { recipe ->
+            recipe.name == name
+        }
+
+        return selected
     }
 }
