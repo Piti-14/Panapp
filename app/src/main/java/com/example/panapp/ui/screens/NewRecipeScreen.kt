@@ -1,10 +1,12 @@
 package com.example.panapp.ui.screens
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,25 +29,26 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.panapp.model.Ingredient
 import com.example.panapp.model.Recipe
 import com.example.panapp.ui.components.Measures
 import com.example.panapp.ui.components.Quantity
+import com.example.panapp.ui.components.RecipePreview
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun NewRecipe() {
-    var context = LocalContext.current
+fun NewRecipe(navController: NavHostController, context: Context) {
 
-    val listOfIngredients = mutableListOf<Ingredient>()
+    val listOfIngredients = rememberSaveable { mutableListOf<Ingredient>() }
     var totalRecipeCost by rememberSaveable { mutableStateOf(0) }
-
+    var precio by rememberSaveable { mutableStateOf("") }
     var ingrediente by rememberSaveable { mutableStateOf("") }
     var cantidad by rememberSaveable { mutableDoubleStateOf(0.0) }
+    var medida by rememberSaveable { mutableStateOf("") }
+    var recetas = rememberSaveable { mutableListOf<Recipe>() }
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -73,7 +76,8 @@ fun NewRecipe() {
                 value = ingrediente,
                 onValueChange = {ingrediente = it},
                 label = { Text("Ingrediente")},
-                modifier = Modifier.width(256.dp)
+                modifier = Modifier.width(256.dp),
+                singleLine = true
             )
 
             Row (
@@ -82,23 +86,53 @@ fun NewRecipe() {
                 verticalAlignment = Alignment.CenterVertically
             ){
 
-                Quantity(modifier = Modifier.width(120.dp))
+                cantidad = Quantity(modifier = Modifier.width(120.dp))
 
-                Measures(modifier = Modifier
+                medida = Measures(modifier = Modifier
                     .width(120.dp)
                     .clip(RectangleShape)
                 )
 
                 Button(
                     onClick = {
-                        listOfIngredients.add(Ingredient(ingrediente, cantidad, ))
+                        listOfIngredients.add(Ingredient(ingrediente, cantidad, medida))
                         ingrediente = ""
                         cantidad = 0.0
                         Toast.makeText(context, "Ingrediente añadido a la receta", Toast.LENGTH_SHORT).show()
                     },
-                    enabled = (cantidad != 0.0 && ingrediente != ""),
+                    enabled = (((cantidad != 0.0) && (ingrediente != "") && medida != "Medida")),
                 ) {
                     Text(text = "Añadir")
+                }
+            }
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            RecipePreview(listOfIngredients)
+
+            Row (
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ){
+                TextField(
+                    value = precio,
+                    onValueChange = { precio = it },
+                    singleLine = true
+                )
+
+                Button(
+                    onClick = {
+                        if (precio.isNotBlank()) {
+                            val nuevaReceta = Recipe(listOfIngredients, precio.toDouble())
+                            recetas.add(nuevaReceta)
+                            precio = ""
+                            Toast.makeText(context, "Receta de producto creada", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Ingrese un precio válido", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ) {
+                    Text(text = "GUARDAR")
                 }
             }
 
