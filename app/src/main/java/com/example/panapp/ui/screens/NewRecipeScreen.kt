@@ -18,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,10 +36,11 @@ import com.example.panapp.model.Recipe
 import com.example.panapp.ui.components.Measures
 import com.example.panapp.ui.components.Quantity
 import com.example.panapp.ui.components.RecipePreview
+import com.example.panapp.ui.viewmodels.RecipeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewRecipe(context: Context) {
+fun NewRecipe(context: Context, recipeViewModel: RecipeViewModel) {
     var ingrediente by rememberSaveable { mutableStateOf("") }
     var cantidad by rememberSaveable { mutableDoubleStateOf(0.0) }
     var medida by rememberSaveable { mutableStateOf("") }
@@ -47,6 +49,8 @@ fun NewRecipe(context: Context) {
     val listOfIngredients = rememberSaveable { mutableListOf<Ingredient>() }
     var precio by rememberSaveable { mutableStateOf("") }
     var nombreReceta by rememberSaveable { mutableStateOf("") }
+
+    var products = recipeViewModel.products.observeAsState()
 
 
     var recetas = rememberSaveable { mutableListOf<Recipe>() }
@@ -123,7 +127,9 @@ fun NewRecipe(context: Context) {
                     onValueChange = { nombreReceta = it },
                     label = { Text(text = "Nombre")},
                     singleLine = true,
-                    modifier = Modifier.width(100.dp).height(50.dp)
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(50.dp)
                 )
 
                 TextField(
@@ -131,7 +137,9 @@ fun NewRecipe(context: Context) {
                     onValueChange = { precio = it },
                     label = { Text(text = "Precio")},
                     singleLine = true,
-                    modifier = Modifier.width(100.dp).height(50.dp)
+                    modifier = Modifier
+                        .width(100.dp)
+                        .height(50.dp)
                 )
 
                 Button(

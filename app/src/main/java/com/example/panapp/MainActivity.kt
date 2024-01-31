@@ -39,6 +39,8 @@ import com.example.panapp.ui.screens.NewRecipe
 import com.example.panapp.ui.screens.WorkFlow
 import com.example.panapp.ui.theme.PanappTheme
 import com.example.panapp.ui.viewmodels.LoginViewModel
+import com.example.panapp.ui.viewmodels.OrderViewModel
+import com.example.panapp.ui.viewmodels.RecipeViewModel
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -51,6 +53,8 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val navController = rememberNavController()
                 var snackBarState = remember { SnackbarHostState() }
+                var recipeViewModel = RecipeViewModel()
+                var orderViewModel = OrderViewModel()
 
                 Scaffold(
                     snackbarHost = { SnackbarHost(hostState = snackBarState) },
@@ -64,9 +68,9 @@ class MainActivity : ComponentActivity() {
                             )){
                         NavHost(navController = navController, startDestination = "Login_Screen"){
                             composable("Login_Screen"){ LoginScreen(loginData = LoginViewModel(), context, navController) }
-                            composable("NewRecipe_Screen"){ NewRecipe(context) }
+                            composable("NewRecipe_Screen"){ NewRecipe(context, recipeViewModel) }
                             composable("WorkFlow_Screen"){ WorkFlow(navController) }
-                            composable("Orders_Screen"){ NewOrder(context) }
+                            composable("Orders_Screen"){ NewOrder(context, recipeViewModel, orderViewModel) }
                         }
                     }
                 }

@@ -18,7 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -30,21 +30,19 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.panapp.model.Ingredient
 import com.example.panapp.model.Order
 import com.example.panapp.model.Recipe
-import com.example.panapp.ui.components.Measures
 import com.example.panapp.ui.components.OrderPreview
 import com.example.panapp.ui.components.Products
-import com.example.panapp.ui.components.Quantity
-import com.example.panapp.ui.components.RecipePreview
 import com.example.panapp.ui.components.Unidades
+import com.example.panapp.ui.viewmodels.OrderViewModel
+import com.example.panapp.ui.viewmodels.RecipeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewOrder(context: Context) {
+fun NewOrder(context: Context, recipeViewModel: RecipeViewModel, orderViewModel: OrderViewModel) {
 
-    var listOfProducts = rememberSaveable { mutableListOf<Recipe>() }
+    var listOfProducts = rememberSaveable { mutableListOf<Recipe>() } //Lista de productos de un pedido de un cliente
     var totalOrderCost by rememberSaveable { mutableStateOf(0.0) }
     var precio by rememberSaveable { mutableStateOf("") }
     var cliente by rememberSaveable { mutableStateOf("") }
@@ -52,6 +50,9 @@ fun NewOrder(context: Context) {
     var fecha by rememberSaveable { mutableStateOf("") }
     var recetas = rememberSaveable { mutableListOf<Recipe>() }
     var productoActual by rememberSaveable { mutableStateOf("") }
+
+    var products = recipeViewModel.products.observeAsState() //Productos que vendo
+    var orders = orderViewModel.oders.observeAsState() //Pedidos pendientes
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -91,8 +92,8 @@ fun NewOrder(context: Context) {
 
                 productoActual = Products(
                                      modifier = Modifier
-                                            .width(120.dp)
-                                            .clip(RectangleShape),
+                                         .width(120.dp)
+                                         .clip(RectangleShape),
                                      listOfProducts
                                  )
 
@@ -144,8 +145,8 @@ fun NewOrder(context: Context) {
                     modifier = Modifier.clip(RectangleShape),
                     onClick = {
                         if (fecha != "" && cliente != "" && totalOrderCost != 0.0) {
-                            val nuevoPedido = Order()
-                            recetas.add(nuevaReceta)
+                            val nuevoPedido = Order(listOfProducts, fecha, cliente, totalOrderCost)
+                            orderViewModel.addOrder(nuevoPedido)
                             precio = ""
                             Toast.makeText(context, "Nuevo pedido generado", Toast.LENGTH_SHORT).show()
                         } else {
